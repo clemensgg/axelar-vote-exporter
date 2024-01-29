@@ -16,5 +16,5 @@ export const pollStatusGauge = new prometheus.Gauge({
 export const voteStatusGauge = new prometheus.Gauge({
     name: 'axlearevm_vote_status',
     help: 'Vote status for each poll and validator',
-    labelNames: ['poll_id', 'tx_hash', 'moniker'],
+    labelNames: ['poll_id', 'tx_hash', 'moniker', 'address'],
 });

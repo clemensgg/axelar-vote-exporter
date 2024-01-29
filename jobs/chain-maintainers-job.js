@@ -3,7 +3,7 @@ import { getChainMaintainers } from "../lib/rpc.js";
 import { getWebsocketFromNetwork } from "../config/env.js";
 import { getMonikerByOperatorAddress } from "../services/validators.js";
 import settings from "../config/settings.js";
-import { maintainerStatusGauge } from '../metrics/metrics.js'; // Importing the metrics
+import { maintainerStatusGauge } from '../metrics/metrics.js';
 
 export default function chainMaintainersJob() {
     process('mainnet');

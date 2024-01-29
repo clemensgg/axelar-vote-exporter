@@ -2,9 +2,8 @@ import { CronJob } from "cron";
 import axelarscan, { setUnSubmittedVotes } from "../lib/axelarscan.js";
 import db from "../services/database.js";
 import settings from "../config/settings.js";
-import { getMonikerByProxyAddress, getValidators } from "../services/validators.js";
+import { getValidators } from "../services/validators.js";
 import { getCurrentBlock } from "../lib/rpc.js";
-import { pollStatusGauge, voteStatusGauge } from '../metrics/metrics.js';
 
 export default function checkPollsJob() {
     let isRunning = false;
@@ -45,29 +44,38 @@ async function processVotes(network = 'mainnet') {
         return;
     }
 
-    const currentBlock = await getCurrentBlock(network);
+    
     for (const poll of polls) {
-        const pollStatus = poll.height + 20 > currentBlock ? 1 : poll.failed ? 4 : 2;
-        pollStatusGauge.set({ poll_id: poll.id, tx_hash: poll.txHash }, pollStatus);
+        // const currentBlock = await getCurrentBlock(network);
+        // poll.status = poll.height + 20 > currentBlock ? 1 : poll.failed ? 4 : 2;
+        // pollStatusGauge.set({ poll_id: poll.id, tx_hash: poll.txHash }, pollStatus);
 
         const existsPoll = await db.getExistsPoll(poll.id, network);
         if (existsPoll) {
+            console.log(`[${network}] poll ${poll.id} already exists in the database.`);
             continue;
         }
 
         const validators = await getValidators(network);
         setUnSubmittedVotes(poll, validators);
 
-        console.log(`[${network}] poll ${poll.id} not exists. Saving...`);
-        await db.savePoll(poll, network);
+        console.log(`[${network}] poll ${poll.id} does not exist. Attempting to save...`);
+        const savedPoll = await db.savePoll(poll, network);
+        console.log(`[${network}] poll ${poll.id} saved with ID: ${savedPoll.id}`);
 
-        const addresses = await db.getAddressesByNetwork(network);
+//        const addresses = await db.getAddressesByNetwork(network);
 
         for (const vote of poll.votes) {
-            const address = addresses.find(address => address.voterAddress === vote.voter);
-            const moniker = await getMonikerByProxyAddress(vote.voter, network);
-            const voteStatus = vote.unSubmitted ? 1 : vote.vote ? 2 : 4;
-            voteStatusGauge.set({ poll_id: poll.id, tx_hash: poll.txHash, moniker, address }, voteStatus);
+            console.log(`[${network}] Saving vote for poll ID: ${poll.id}`);
+            await db.saveVote({
+                pollId: savedPoll.id,
+                voter: vote.voter,
+                vote: vote.vote,
+                unSubmitted: vote.unSubmitted,
+                network: network
+            });
+            console.log(`[${network}] Vote saved for poll ID: ${poll.id}`);
         }
     }
 }
+
