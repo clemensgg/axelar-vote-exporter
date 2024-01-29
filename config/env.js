@@ -1,12 +1,8 @@
 import 'dotenv/config';
 
-export const DiscordToken = process.env.DISCORD_TOKEN;
-export const MainnetChannelId = process.env.MAINNET_CHANNEL_ID;
-export const TestnetChannelId = process.env.TESTNET_CHANNEL_ID;
-export const PollFailedNotifyUsers = process.env.POLL_FAILED_NOTIFY_USERS;
-export const MainnetWebsocket = process.env.MAINNET_WEBSOCKET;
+export const MainnetWebsocket = process.env.MAINNET_WEBSOCKET || "wss://axelar-rpc.polkachu.com/websocket";
 export const TestnetWebsocket = process.env.TESTNET_WEBSOCKET;
-export const MainnetRpc = process.env.MAINNET_RPC;
+export const MainnetRpc = process.env.MAINNET_RPC || "https://axelar-rpc.polkachu.com" ;
 export const TestnetRpc = process.env.TESTNET_RPC;
 export const MainnetNoVotePercentage = process.env.MAINNET_NO_VOTE_PERCENTAGE || 60;
 export const TestnetNoVotePercentage = process.env.TESTNET_NO_VOTE_PERCENTAGE || 60;

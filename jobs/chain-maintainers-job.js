@@ -1,11 +1,9 @@
 import WebSocket from 'ws';
-import {getChainMaintainers} from "../lib/rpc.js";
-import {getChannelIdFromNetwork, getWebsocketFromNetwork} from "../config/env.js";
-import db from "../services/database.js";
-import {sendMessage} from "../services/discord.js";
-import {EmbedBuilder} from "discord.js";
-import {getMonikerByOperatorAddress} from "../services/validators.js";
+import { getChainMaintainers } from "../lib/rpc.js";
+import { getWebsocketFromNetwork } from "../config/env.js";
+import { getMonikerByOperatorAddress } from "../services/validators.js";
 import settings from "../config/settings.js";
+import { maintainerStatusGauge } from '../metrics/metrics.js'; // Importing the metrics
 
 export default function chainMaintainersJob() {
     process('mainnet');
@@ -72,31 +70,8 @@ async function checkChainMaintainers(height, network = 'mainnet') {
     }
 
     for (const chainMaintainer of chainMaintainers) {
-        const address = await db.getAddress({operatorAddress: chainMaintainer.address}, network);
-
-        let messageText = `**${getMonikerByOperatorAddress(chainMaintainer.address, network)}** ${chainMaintainer.action === "register" ? "registered" : "deregistered"}: **${chainMaintainer.chain}**`;
-        if (address) {
-            messageText += ` <@${address.userIds.split(',').join('>, <@')}>`;
-        }
-
-        const embed = new EmbedBuilder()
-            .setTitle('Chain Maintainer Alert')
-            .setColor(chainMaintainer.action === "register" ? 0x4BB543 : 0xF32013)
-            .setURL(`https://${network === 'testnet' ? 'testnet.' : ''}axelarscan.io/validator/${chainMaintainer.address}`)
-            .addFields(
-                {
-                    name: `${chainMaintainer.action === "register" ? "Registration" : "Deregistration"}`,
-                    value: `**${getMonikerByOperatorAddress(chainMaintainer.address, network)}**`, inline: true
-                },
-                {
-                    name: `Chain`,
-                    value: `**${chainMaintainer.chain}**`, inline: true
-                },
-            );
-
-        await sendMessage(getChannelIdFromNetwork(network), {
-            content: messageText,
-            embeds: [embed]
-        });
+        const moniker = await getMonikerByOperatorAddress(chainMaintainer.address, network);
+        const status = chainMaintainer.action === "register" ? 1 : 0;
+        maintainerStatusGauge.set({ chainmaintainer_chain: chainMaintainer.chain, moniker, address: chainMaintainer.address }, status);
     }
 }
