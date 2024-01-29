@@ -10,31 +10,6 @@ export default {
             }
         });
     },
-    async getAddress(filter, network) {
-        return await prisma.address.findFirst({
-            where: {
-                network: network,
-                ...filter,
-            }
-        });
-    },
-    async saveAddress(address, network) {
-        await prisma.address.create({
-            data: {
-                voterAddress: address.voterAddress,
-                operatorAddress: address.operatorAddress,
-                userIds: address.userIds,
-                network: network,
-            }
-        });
-    },
-    async deleteAddress(addressId) {
-        await prisma.address.delete({
-            where: {
-                id: addressId
-            }
-        });
-    },
     async saveVote(voteData) {
         await prisma.vote.create({
             data: {
@@ -251,13 +226,25 @@ export default {
         });
     },
     async getVotesForPoll(pollId) {
-        return await prisma.vote.findMany({
+        console.log(`Fetching votes for poll ID: ${pollId}`);
+        const poll = await prisma.poll.findFirst({
             where: {
                 pollId: pollId,
             },
-            include: {
-                poll: true, 
+        });
+    
+        if (!poll) {
+            console.log(`No poll found for poll ID: ${pollId}`);
+            return [];
+        }
+
+        const votes = await prisma.vote.findMany({
+            where: {
+                pollId: poll.id, 
             },
         });
-    },
+    
+        console.log(`Votes for poll ID ${pollId}:`, votes);
+        return votes;
+    }
 }

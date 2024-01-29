@@ -3,6 +3,7 @@ import { register as prometheusRegister } from 'prom-client';
 import { setupValidators } from "./services/validators.js";
 import { setupJobs } from "./jobs/index.js";
 import { getMetricsPort } from "./config/env.js";
+import { exportMetrics } from './metrics/exporter.js';
 
 console.log('Starting...');
 
@@ -17,6 +18,7 @@ const metricsPort = getMetricsPort();
 
 app.get('/metrics', async (req, res) => {
     try {
+        await exportMetrics();
         res.set('Content-Type', prometheusRegister.contentType);
         res.end(await prometheusRegister.metrics());
     } catch (error) {

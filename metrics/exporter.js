@@ -1,7 +1,12 @@
 import db from '../services/database.js';
+import { fetchChainMaintainers } from '../jobs/chain-maintainers-job.js'
 import { voteStatusGauge, pollStatusGauge } from './metrics.js';
+import { getMonikerByProxyAddress } from "../services/validators.js";
 
 export async function exportMetrics() {
+    // Export Maintainer Status
+    await fetchChainMaintainers();
+
     // Export Poll Status
     const recentPolls = await db.getRecentPolls(100);
     for (const poll of recentPolls) {
@@ -13,8 +18,8 @@ export async function exportMetrics() {
         // Export Vote Status
         const votes = await db.getVotesForPoll(poll.pollId); 
         for (const vote of votes) {
-            const address = await db.getAddress({ voterAddress: vote.voter }, poll.network);
-            const moniker = address ? address.moniker : 'unknown';
+            // const address = await db.getAddress({ voterAddress: vote.voter }, poll.network);
+            const moniker = await getMonikerByProxyAddress(vote.voter);
             voteStatusGauge.set({
                 poll_id: poll.pollId, 
                 tx_hash: poll.txHash,

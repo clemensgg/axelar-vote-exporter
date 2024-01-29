@@ -1,12 +1,12 @@
 import 'dotenv/config';
 
-export const MainnetWebsocket = process.env.MAINNET_WEBSOCKET || "wss://axelar-rpc.polkachu.com/websocket";
-export const TestnetWebsocket = process.env.TESTNET_WEBSOCKET;
-export const MainnetRpc = process.env.MAINNET_RPC || "https://axelar-rpc.polkachu.com" ;
+export const MainnetRpc = process.env.MAINNET_RPC || "https://rpc-axelar.imperator.co:443" ;
 export const TestnetRpc = process.env.TESTNET_RPC;
+export const MainnetLcd = process.env.MAINNET_RPC || "https://lcd-axelar.imperator.co:443" ;
+export const TestnetLcd = process.env.TESTNET_RPC;
 export const MainnetNoVotePercentage = process.env.MAINNET_NO_VOTE_PERCENTAGE || 60;
 export const TestnetNoVotePercentage = process.env.TESTNET_NO_VOTE_PERCENTAGE || 60;
-
+export const MetricsPort = process.env.METRICS_PORT || 3009;
 
 export function getChannelIdFromNetwork(network) {
     if (network === 'mainnet') {
@@ -38,6 +38,16 @@ export function getRpcFromNetwork(network) {
     return null;
 }
 
+export function getLcdFromNetwork(network) {
+    if (network === 'mainnet') {
+        return MainnetLcd;
+    } else if (network === 'testnet') {
+        return TestnetLcd;
+    }
+
+    return null;
+}
+
 export function getNoVotePercentageFromNetwork(network) {
     if (network === 'mainnet') {
         return isNaN(parseInt(MainnetNoVotePercentage)) ? 60 : MainnetNoVotePercentage;
@@ -46,4 +56,8 @@ export function getNoVotePercentageFromNetwork(network) {
     }
 
     return 60;
+}
+
+export function getMetricsPort() {
+    return MetricsPort;
 }
