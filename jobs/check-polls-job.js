@@ -45,10 +45,6 @@ async function processVotes(network = 'mainnet') {
 
     
     for (const poll of polls) {
-        // const currentBlock = await getCurrentBlock(network);
-        // poll.status = poll.height + 20 > currentBlock ? 1 : poll.failed ? 4 : 2;
-        // pollStatusGauge.set({ poll_id: poll.id, tx_hash: poll.txHash }, pollStatus);
-
         const existsPoll = await db.getExistsPoll(poll.id, network);
         if (existsPoll) {
             console.log(`[${network}] poll ${poll.id} already exists in the database.`);
@@ -58,14 +54,10 @@ async function processVotes(network = 'mainnet') {
         const validators = await getValidators(network);
         setUnSubmittedVotes(poll, validators);
 
-        console.log(`[${network}] poll ${poll.id} does not exist. Attempting to save...`);
         const savedPoll = await db.savePoll(poll, network);
-        console.log(`[${network}] poll ${poll.id} saved with ID: ${savedPoll.id}`);
-
-//        const addresses = await db.getAddressesByNetwork(network);
+        console.log(`[${network}] poll ${poll.id} saved with ID: ${savedPoll.id}. Saving votes...`);
 
         for (const vote of poll.votes) {
-            console.log(`[${network}] Saving vote for poll ID: ${poll.id}`);
             await db.saveVote({
                 pollId: savedPoll.id,
                 voter: vote.voter,
@@ -73,8 +65,9 @@ async function processVotes(network = 'mainnet') {
                 unSubmitted: vote.unSubmitted,
                 network: network
             });
-            console.log(`[${network}] Vote saved for poll ID: ${poll.id}`);
+            
         }
+        console.log(`[${network}] Votes saved for poll ID: ${poll.id}`);
     }
 }
 
