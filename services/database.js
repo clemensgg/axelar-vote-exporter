@@ -10,28 +10,15 @@ export default {
             }
         });
     },
-    async getAddress(filter, network) {
-        return await prisma.address.findFirst({
-            where: {
-                network: network,
-                ...filter,
-            }
-        });
-    },
-    async saveAddress(address, network) {
-        await prisma.address.create({
+    async saveVote(voteData) {
+        await prisma.vote.create({
             data: {
-                voterAddress: address.voterAddress,
-                operatorAddress: address.operatorAddress,
-                userIds: address.userIds,
-                network: network,
-            }
-        });
-    },
-    async deleteAddress(addressId) {
-        await prisma.address.delete({
-            where: {
-                id: addressId
+                voter: voteData.voter,
+                vote: voteData.vote,
+                unSubmitted: voteData.unSubmitted,
+                poll: {
+                    connect: { id: voteData.pollId }
+                }
             }
         });
     },
@@ -44,24 +31,30 @@ export default {
         });
     },
     async savePoll(poll, network) {
-        await prisma.poll.create({
-            data: {
-                pollId: poll.id,
-                height: poll.height,
-                network: network,
-                chain: poll.chain,
-                txHash: poll.txHash,
-                success: poll.success,
-                failed: poll.failed,
-                votes: {
-                    create: poll.votes.map(vote => ({
-                        voter: vote.voter,
-                        vote: vote.vote,
-                        unSubmitted: vote.unSubmitted,
-                    }))
-                },
-            }
-        });
+        try {
+            const savedPoll = await prisma.poll.create({
+                data: {
+                    pollId: poll.id,       
+                    height: poll.height,   
+                    network: network,      
+                    chain: poll.chain,     
+                    txHash: poll.txHash,   
+                    success: poll.success, 
+                    failed: poll.failed,  
+                    votes: {
+                        create: poll.votes.map(vote => ({
+                            voter: vote.voter,
+                            vote: vote.vote,
+                            unSubmitted: vote.unSubmitted,
+                        }))
+                    },
+                }
+                });
+                return savedPoll; 
+        } catch (error) {
+            console.error(`Error saving poll: ${error.message}`);
+            return null;
+        }
     },
     async getAddressVotes(address, network) {
         return await prisma.vote.findMany({
@@ -221,4 +214,33 @@ export default {
 
         return Object.keys(voters).map(key => ({voter: key, ...voters[key]}));
     },
+    async getRecentPolls(limit, network) {
+        return await prisma.poll.findMany({
+            where: {
+                network: network,
+            },
+            take: limit,
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    },
+    async getVotesForPoll(pollId) {
+        const poll = await prisma.poll.findFirst({
+            where: {
+                pollId: pollId,
+            },
+        });
+    
+        if (!poll) {
+            return [];
+        }
+
+        const votes = await prisma.vote.findMany({
+            where: {
+                pollId: poll.id, 
+            },
+        });
+        return votes;
+    }
 }

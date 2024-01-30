@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,21 +17,21 @@ model Poll {
   txHash    String?
   success   Boolean
   failed    Boolean
-  votes     Vote[]
+  votes     Vote[] 
 
   @@unique([pollId, network])
 }
 
 model Vote {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  poll      Poll     @relation(fields: [pollId], references: [id])
-  pollId    Int
-
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  poll        Poll     @relation(fields: [pollId], references: [id])
+  pollId      Int      
   voter       String
   vote        Boolean
   unSubmitted Boolean
 }
+
 
 model Address {
   id              Int      @id @default(autoincrement())

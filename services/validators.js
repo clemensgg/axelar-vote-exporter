@@ -17,7 +17,6 @@ export function getValidators(network = 'mainnet') {
     if (!validators[network]) {
         return [];
     }
-
     return validators[network];
 }
 
