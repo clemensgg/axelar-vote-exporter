@@ -226,7 +226,6 @@ export default {
         });
     },
     async getVotesForPoll(pollId) {
-        console.log(`Fetching votes for poll ID: ${pollId}`);
         const poll = await prisma.poll.findFirst({
             where: {
                 pollId: pollId,
@@ -234,7 +233,6 @@ export default {
         });
     
         if (!poll) {
-            console.log(`No poll found for poll ID: ${pollId}`);
             return [];
         }
 
@@ -243,8 +241,6 @@ export default {
                 pollId: poll.id, 
             },
         });
-    
-        console.log(`Votes for poll ID ${pollId}:`, votes);
         return votes;
     }
 }
