@@ -1,5 +1,5 @@
 import { getChains, getChainMaintainers } from "../lib/rpc.js";
-import { getMonikerByOperatorAddress, getValidators } from "../services/validators.js";
+import { getValidators } from "../services/validators.js";
 import settings from "../config/settings.js";
 import { maintainerStatusGauge } from '../metrics/metrics.js';
 

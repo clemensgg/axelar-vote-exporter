@@ -2,6 +2,7 @@ import db from '../services/database.js';
 import { fetchChainMaintainers } from '../jobs/chain-maintainers-job.js'
 import { voteStatusGauge, pollStatusGauge } from './metrics.js';
 import { getMonikerByProxyAddress } from "../services/validators.js";
+import { getMonikerRegex } from "../config/env.js";
 
 export async function exportMetrics() {
     // Export Maintainer Status
@@ -11,6 +12,7 @@ export async function exportMetrics() {
     const recentPolls = await db.getRecentPolls(100);
     for (const poll of recentPolls) {
         pollStatusGauge.set({
+            evm_chain: poll.chain,
             poll_id: poll.pollId, 
             tx_hash: poll.txHash
         }, poll.failed ? 4 : (poll.success ? 2 : 1)); // 4 for failed, 2 for confirmed, 1 for pending
@@ -20,12 +22,26 @@ export async function exportMetrics() {
         for (const vote of votes) {
             // const address = await db.getAddress({ voterAddress: vote.voter }, poll.network);
             const moniker = await getMonikerByProxyAddress(vote.voter);
-            voteStatusGauge.set({
-                poll_id: poll.pollId, 
-                tx_hash: poll.txHash,
-                moniker,
-                address: vote.voter
-            }, vote.vote ? 2 : (vote.unSubmitted ? 1 : 4)); // 2 for yes, 1 for no vote, 4 for no
+
+            // match your Moniker here to prevent high metric cardinality
+            if (getMonikerRegex !== '') {
+                if (moniker.includes(getMonikerRegex())) {
+                    voteStatusGauge.set({
+                        evm_chain: poll.chain,
+                        poll_id: poll.pollId, 
+                        tx_hash: poll.txHash,
+                        moniker,
+                        address: vote.voter
+                    }, vote.vote ? 2 : (vote.unSubmitted ? 1 : 4)); // 2 for yes, 1 for no vote, 4 for no
+                }
+            } else {
+                voteStatusGauge.set({
+                    poll_id: poll.pollId, 
+                    tx_hash: poll.txHash,
+                    moniker,
+                    address: vote.voter
+                }, vote.vote ? 2 : (vote.unSubmitted ? 1 : 4)); // 2 for yes, 1 for no vote, 4 for no
+            }
         }
     }
 }

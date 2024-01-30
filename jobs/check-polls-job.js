@@ -3,7 +3,6 @@ import axelarscan, { setUnSubmittedVotes } from "../lib/axelarscan.js";
 import db from "../services/database.js";
 import settings from "../config/settings.js";
 import { getValidators } from "../services/validators.js";
-import { getCurrentBlock } from "../lib/rpc.js";
 
 export default function checkPollsJob() {
     let isRunning = false;

@@ -7,6 +7,7 @@ export const TestnetLcd = process.env.TESTNET_RPC;
 export const MainnetNoVotePercentage = process.env.MAINNET_NO_VOTE_PERCENTAGE || 60;
 export const TestnetNoVotePercentage = process.env.TESTNET_NO_VOTE_PERCENTAGE || 60;
 export const MetricsPort = process.env.METRICS_PORT || 3009;
+export const MonikerRegex = process.env.MONIKER_REGEX || "CryptoCrew"
 
 export function getChannelIdFromNetwork(network) {
     if (network === 'mainnet') {
@@ -60,4 +61,8 @@ export function getNoVotePercentageFromNetwork(network) {
 
 export function getMetricsPort() {
     return MetricsPort;
+}
+
+export function getMonikerRegex() {
+    return MonikerRegex;
 }
