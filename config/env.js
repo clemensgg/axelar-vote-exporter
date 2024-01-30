@@ -1,9 +1,9 @@
 import 'dotenv/config';
 
-export const MainnetRpc = process.env.MAINNET_RPC || "https://rpc-axelar.imperator.co:443" ;
-export const TestnetRpc = process.env.TESTNET_RPC;
-export const MainnetLcd = process.env.MAINNET_RPC || "https://lcd-axelar.imperator.co:443" ;
-export const TestnetLcd = process.env.TESTNET_RPC;
+export const MainnetRpc = process.env.MAINNET_RPC || "https://rpc-axelar.imperator.co:443";
+export const TestnetRpc = process.env.TESTNET_RPC || "https://axelartest-rpc.quickapi.com:443";
+export const MainnetLcd = process.env.MAINNET_LCD || "https://lcd-axelar.imperator.co:443";
+export const TestnetLcd = process.env.TESTNET_LCD || "https://axelartest-lcd.quickapi.com:443";
 export const MainnetNoVotePercentage = process.env.MAINNET_NO_VOTE_PERCENTAGE || 60;
 export const TestnetNoVotePercentage = process.env.TESTNET_NO_VOTE_PERCENTAGE || 60;
 export const MetricsPort = process.env.METRICS_PORT || 3009;
