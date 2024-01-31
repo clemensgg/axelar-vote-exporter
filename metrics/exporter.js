@@ -15,7 +15,7 @@ export async function exportMetrics() {
             evm_chain: poll.chain,
             poll_id: poll.pollId, 
             tx_hash: poll.txHash
-        }, poll.failed ? 4 : (poll.success ? 2 : 1)); // 4 for failed, 2 for confirmed, 1 for pending
+        }, poll.failed ? 2 : (poll.success ? 1 : 0)); // 0 for pending, 1 for confirmed, 2 for failed
 
         // Export Vote Status
         const votes = await db.getVotesForPoll(poll.pollId); 
@@ -32,16 +32,17 @@ export async function exportMetrics() {
                         tx_hash: poll.txHash,
                         moniker,
                         address: vote.voter
-                    }, vote.vote ? 2 : (vote.unSubmitted ? 1 : 4)); // 2 for yes, 1 for no vote, 4 for no
+                    }, vote.vote ? 1 : (vote.unSubmitted ? 0 : 2)); // 0 for no vote, 1 for yes, 2 for no
                 }
-            } else {
-                voteStatusGauge.set({
-                    poll_id: poll.pollId, 
-                    tx_hash: poll.txHash,
-                    moniker,
-                    address: vote.voter
-                }, vote.vote ? 2 : (vote.unSubmitted ? 1 : 4)); // 2 for yes, 1 for no vote, 4 for no
-            }
+            } 
+            // else {
+            //     voteStatusGauge.set({
+            //         poll_id: poll.pollId, 
+            //         tx_hash: poll.txHash,
+            //         moniker,
+            //         address: vote.voter
+            //     }, vote.vote ? 1 : (vote.unSubmitted ? 0 : 2)); // 0 for no vote, 1 for yes, 2 for no
+            // }
         }
     }
 }
