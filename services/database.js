@@ -221,7 +221,7 @@ export default {
             },
             take: limit,
             orderBy: {
-                createdAt: 'desc',
+                pollId: 'desc',
             },
         });
     },
@@ -242,5 +242,28 @@ export default {
             },
         });
         return votes;
-    }
+    },
+    async getExistsVote(pollId, voter, network) {
+        return await prisma.vote.findFirst({
+            where: {
+                pollId: pollId,
+                voter: voter,
+                poll: {
+                    network: network,
+                }
+            }
+        });
+    },
+    async updateVote(voteData) {
+        await prisma.vote.updateMany({
+            where: {
+                pollId: voteData.pollId,
+                voter: voteData.voter,
+            },
+            data: {
+                vote: voteData.vote,
+                unSubmitted: voteData.unSubmitted,
+            }
+        });
+    },
 }
