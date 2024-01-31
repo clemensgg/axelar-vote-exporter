@@ -11,10 +11,10 @@ Metrics:
 # HELP axelarevm_maintainer_status Chain maintainer status of each maintainer for each evm chain
 # TYPE axelarevm_maintainer_status gauge
 
-# HELP axlearevm_poll_status Poll status: 1=pending, 2=confirmed, 4=failed
+# HELP axlearevm_poll_status Poll status: 0=pending, 1=confirmed, 2=failed
 # TYPE axlearevm_poll_status gauge
 
-# HELP axlearevm_vote_status Vote status for each poll and validator
+# HELP axlearevm_vote_status Vote status for each poll and validator: 0=pending, 1=yes, 2=no
 # TYPE axlearevm_vote_status gauge
 ```
 
